@@ -12,8 +12,10 @@ import {
 } from "react-native";
 
 // URL DE GOOGLE APPS SCRIPT
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzi6eAsz8qiIqatGEVtf655cLCA5a19gPlNoqjfZWLwYC48sQyFO_RZbA77k4vq6G6_Eg/exec";
+//(modificado) Leemos la URL desde el archivo .env
+const SCRIPT_URL = process.env.EXPO_PUBLIC_SCRIPT_URL;
+
+console.log("DEBUG - URL cargada:", process.env.EXPO_PUBLIC_SCRIPT_URL);
 
 export default function App() {
   const [concepto, setConcepto] = useState("");
