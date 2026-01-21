@@ -15,7 +15,7 @@ import {
 //(modificado) Leemos la URL desde el archivo .env
 const SCRIPT_URL = process.env.EXPO_PUBLIC_SCRIPT_URL;
 
-console.log("DEBUG - URL cargada:", process.env.EXPO_PUBLIC_SCRIPT_URL);
+//console.log("DEBUG - URL cargada:", process.env.EXPO_PUBLIC_SCRIPT_URL);
 
 export default function App() {
   const [concepto, setConcepto] = useState("");
@@ -93,12 +93,12 @@ export default function App() {
         <TouchableOpacity
           style={[
             styles.botonPersona,
-            pagador === "Pareja" && styles.botonActivo,
+            pagador === "Milagros" && styles.botonActivo,
           ]}
-          onPress={() => setPagador("Pareja")}
+          onPress={() => setPagador("Milagros")}
         >
-          <Text style={pagador === "Pareja" ? styles.textoActivo : null}>
-            Pareja
+          <Text style={pagador === "Milagros" ? styles.textoActivo : null}>
+            Milagros
           </Text>
         </TouchableOpacity>
       </View>
