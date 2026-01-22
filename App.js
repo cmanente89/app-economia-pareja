@@ -1,19 +1,30 @@
 import axios from "axios";
 import { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  //StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+
+import { styles } from "./styles/styles.js";
 
 // URL DE GOOGLE APPS SCRIPT
 //(modificado) Leemos la URL desde el archivo .env
 const SCRIPT_URL = process.env.EXPO_PUBLIC_SCRIPT_URL;
+
+const CATEGORIAS_MADRE = [
+  "Vida",
+  "Impuestos/Servicios",
+  "Transporte",
+  "Entretenimiento",
+  "Vicios",
+  "Varios/Extras",
+];
 
 //console.log("DEBUG - URL cargada:", process.env.EXPO_PUBLIC_SCRIPT_URL);
 
@@ -24,6 +35,7 @@ export default function App() {
   const [cuotas, setCuotas] = useState("1");
   const [proximoMes, setProximoMes] = useState(false);
   const [cargando, setCargando] = useState(false);
+  const [categoria, setCategoria] = useState("Vida");
 
   const enviarGasto = async () => {
     if (!concepto || !monto) {
@@ -39,6 +51,7 @@ export default function App() {
       cuotas: parseInt(cuotas),
       pagaProximoMes: proximoMes,
       compartido: true, // Por defecto lo enviamos como compartido
+      categoria: categoria,
     };
 
     try {
@@ -59,6 +72,91 @@ export default function App() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.titulo}>Nuevo Gasto</Text>
+
+      <Text style={styles.label}>Categoría General</Text>
+      <View style={styles.gridCategorias}>
+        {CATEGORIAS_MADRE.map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            style={[
+              styles.botonCuadricula,
+              categoria === cat && styles.botonCuadriculaActivo,
+            ]}
+            onPress={() => setCategoria(cat)}
+          >
+            <Text
+              style={[
+                styles.textoCuadricula,
+                categoria === cat && styles.textoCuadriculaActivo,
+              ]}
+            >
+              {cat}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.contenedorChips}>
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Supermercado");
+            setCategoria("Vida");
+          }}
+        >
+          <Text style={styles.chipText}>🛒 Súper</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Gatas");
+            setCategoria("Vida");
+          }}
+        >
+          <Text style={styles.chipText}>🐱 Gatas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Salidas");
+            setCategoria("Entretenimiento");
+          }}
+        >
+          <Text style={styles.chipText}>🍕 Salidas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Escabio");
+            setCategoria("Vicios");
+          }}
+        >
+          <Text style={styles.chipText}>🍷 Escabio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Bibi 🚗");
+            setCategoria("Transporte");
+          }}
+        >
+          <Text style={styles.chipText}>🚗 Bibi</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={() => {
+            setConcepto("Delivery 🍕");
+            setCategoria("Varios");
+          }}
+        >
+          <Text style={styles.chipText}>🍕 Delivery</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text style={styles.label}>Concepto</Text>
       <TextInput
@@ -128,49 +226,3 @@ export default function App() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { padding: 40, backgroundColor: "#fff", flexGrow: 1 },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  label: { fontSize: 16, marginBottom: 5, color: "#555" },
-  input: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    marginBottom: 20,
-    padding: 8,
-    fontSize: 18,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  rowSpace: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  botonPersona: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    width: "48%",
-    alignItems: "center",
-  },
-  botonActivo: { backgroundColor: "#007AFF", borderColor: "#007AFF" },
-  textoActivo: { color: "#fff", fontWeight: "bold" },
-  botonEnviar: {
-    backgroundColor: "#28a745",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  textoBoton: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-});
