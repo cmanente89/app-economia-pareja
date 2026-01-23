@@ -82,7 +82,10 @@ export default function App() {
               styles.botonCuadricula,
               categoria === cat && styles.botonCuadriculaActivo,
             ]}
-            onPress={() => setCategoria(cat)}
+            onPress={() => {
+              setCategoria(cat);
+              setConcepto("");
+            }}
           >
             <Text
               style={[
@@ -98,7 +101,10 @@ export default function App() {
 
       <View style={styles.contenedorChips}>
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Supermercado" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
             setConcepto("Supermercado");
             setCategoria("Vida");
@@ -108,7 +114,10 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Gatas" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
             setConcepto("Gatas");
             setCategoria("Vida");
@@ -118,7 +127,10 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Salidas" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
             setConcepto("Salidas");
             setCategoria("Entretenimiento");
@@ -128,7 +140,10 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Escabio" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
             setConcepto("Escabio");
             setCategoria("Vicios");
@@ -138,9 +153,12 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Bibi" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
-            setConcepto("Bibi 🚗");
+            setConcepto("Bibi");
             setCategoria("Transporte");
           }}
         >
@@ -148,13 +166,16 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.chip}
+          style={[
+            styles.chip,
+            concepto === "Delivery" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
+          ]}
           onPress={() => {
-            setConcepto("Delivery 🍕");
-            setCategoria("Varios");
+            setConcepto("Delivery");
+            setCategoria("Varios/Extras");
           }}
         >
-          <Text style={styles.chipText}>🍕 Delivery</Text>
+          <Text style={styles.chipText}>🍔 Delivery</Text>
         </TouchableOpacity>
       </View>
 

@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: { padding: 40, backgroundColor: "#fff", flexGrow: 1 },
   titulo: {
     fontSize: 24,
@@ -48,22 +48,37 @@ const styles = StyleSheet.create({
   //botones conceptos presetados
   contenedorChips: {
     flexDirection: "row",
-    flexWrap: "wrap", // Esto hace que si no entran en una fila, bajen a la siguiente
-    marginBottom: 15,
-    marginTop: 5,
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+    marginBottom: 20,
+    width: "100%", // Asegura que ocupe todo el ancho
   },
-
   chip: {
-    backgroundColor: "#e8f0fe",
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    marginRight: 10,
+    // Usamos flexBasis en lugar de width para que Flexbox sea más estable
+    flexBasis: "45%",
+    height: 55, // Altura fija para que no desaparezca al clickear
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    margin: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    // Esto evita que el botón se achique bajo presión
+    flexShrink: 0,
+    flexGrow: 0,
   },
   chipText: {
-    color: "#1a73e8",
-    fontSize: 13,
-    fontWeight: "500",
+    fontSize: 13, // Un pelín más chico para que "Supermercado" no sufra
+    color: "#333",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  chipActivo: {
+    backgroundColor: "#007AFF", // El azul que venís usando
+    borderColor: "#007AFF",
   },
 
   //botones categorias
