@@ -36,6 +36,7 @@ export default function App() {
   const [proximoMes, setProximoMes] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [categoria, setCategoria] = useState("Vida");
+  const [dividir, setDividir] = useState(true); // Por defecto se divide
 
   const enviarGasto = async () => {
     if (!concepto || !monto) {
@@ -43,15 +44,14 @@ export default function App() {
       return;
     }
 
-    setCargando(true);
     const datos = {
+      categoria: categoria,
       concepto: concepto,
       monto: parseFloat(monto),
-      pagador: pagador,
       cuotas: parseInt(cuotas),
+      pagador: pagador,
       pagaProximoMes: proximoMes,
-      compartido: true, // Por defecto lo enviamos como compartido
-      categoria: categoria,
+      compartido: dividir,
     };
 
     try {
@@ -73,6 +73,8 @@ export default function App() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.titulo}>Nuevo Gasto</Text>
 
+      {/* botones de categorias */}
+
       <Text style={styles.label}>Categoría General</Text>
       <View style={styles.gridCategorias}>
         {CATEGORIAS_MADRE.map((cat) => (
@@ -84,7 +86,7 @@ export default function App() {
             ]}
             onPress={() => {
               setCategoria(cat);
-              setConcepto("");
+              setConcepto(""); //limpia el concepto si cambia la categoria
             }}
           >
             <Text
@@ -98,6 +100,8 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* botones conceptos */}
 
       <View style={styles.contenedorChips}>
         <TouchableOpacity
@@ -233,6 +237,16 @@ export default function App() {
       <View style={styles.rowSpace}>
         <Text style={styles.label}>¿Paga el próximo mes?</Text>
         <Switch value={proximoMes} onValueChange={setProximoMes} />
+      </View>
+
+      <View style={styles.contenedorDividir}>
+        <Text style={styles.textoDividir}>¿Dividir gasto con mi pareja?</Text>
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={dividir ? "#007AFF" : "#f4f3f4"}
+          onValueChange={() => setDividir((previousState) => !previousState)}
+          value={dividir}
+        />
       </View>
 
       <TouchableOpacity
