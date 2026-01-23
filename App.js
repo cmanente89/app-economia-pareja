@@ -179,7 +179,7 @@ export default function App() {
             setCategoria("Varios/Extras");
           }}
         >
-          <Text style={styles.chipText}>🍔 Delivery</Text>
+          <Text style={styles.chipText}>🍔 Deliv</Text>
         </TouchableOpacity>
       </View>
 
