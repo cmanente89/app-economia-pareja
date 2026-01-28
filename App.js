@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useState } from "react";
+// import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -10,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { supabase } from './lib/supabase';
 
 import { styles } from "./styles/styles.js";
 
@@ -38,36 +40,76 @@ export default function App() {
   const [categoria, setCategoria] = useState("Vida");
   const [dividir, setDividir] = useState(true); // Por defecto se divide
 
-  const enviarGasto = async () => {
-    if (!concepto || !monto) {
-      Alert.alert("Error", "Por favor completa concepto y monto.");
-      return;
-    }
+  //PRUEBA CON useEffect para Supabase
 
-    const datos = {
-      categoria: categoria,
-      concepto: concepto,
-      monto: parseFloat(monto),
-      cuotas: parseInt(cuotas),
-      pagador: pagador,
-      pagaProximoMes: proximoMes,
-      compartido: dividir,
+  useEffect(() => {
+    const testConexion = async () => {
+      const { data, error } = await supabase.from('gastos').select('*').limit(1);
+      if (error) console.log("Error Supabase:", error.message);
+      else console.log("✅ ¡Conexión exitosa!");
     };
+    testConexion();
+  }, []);
 
-    try {
-      await axios.post(SCRIPT_URL, JSON.stringify(datos));
-      Alert.alert("¡Éxito!", "Gasto cargado correctamente.");
-      setConcepto("");
-      setMonto("");
-      setCuotas("1");
-      setProximoMes(false);
-    } catch (error) {
-      Alert.alert("Error", "No se pudo conectar con el Excel.");
-      console.error(error);
-    } finally {
-      setCargando(false);
-    }
+  const enviarGasto = async () => {
+  if (!concepto || !monto) {
+    Alert.alert("Error", "Por favor completa concepto y monto.");
+    return;
+  }
+
+  const datos = {
+    categoria: categoria,
+    concepto: concepto,
+    monto: parseFloat(monto),
+    cuotas: parseInt(cuotas),
+    pagador: pagador,
+    pagaProximoMes: proximoMes,
+    compartido: dividir,
   };
+
+  setCargando(true);
+
+  try {
+    // 1. Mandamos al Google Sheets (como siempre)
+    await axios.post(SCRIPT_URL, JSON.stringify(datos));
+    
+    // 2. Mandamos a Supabase (lo nuevo)
+    await enviarASupabase(datos);
+
+    Alert.alert("¡Éxito!", "Gasto cargado en Excel y Supabase.");
+    
+    // Limpieza de campos...
+    setConcepto("");
+    setMonto("");
+  } catch (error) {
+    Alert.alert("Error", "Hubo un problema al guardar.");
+  } finally {
+    setCargando(false);
+  }
+};
+
+  const enviarASupabase = async (datos) => {
+  try {
+    const { error } = await supabase
+      .from('gastos')
+      .insert([
+        {
+          categoria: datos.categoria,
+          concepto: datos.concepto,
+          monto: datos.monto,
+          pagador: datos.pagador,
+          cuotas: datos.cuotas,
+          es_compartido: datos.compartido,
+          // mes_pago lo manejaremos más adelante con lógica de fechas
+        }
+      ]);
+
+    if (error) throw error;
+    console.log("✅ ¡Guardado en Supabase!");
+  } catch (error) {
+    console.error("❌ Error Supabase:", error.message);
+  }
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
