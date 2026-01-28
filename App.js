@@ -1,6 +1,6 @@
 import axios from "axios";
 // import { useState } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -42,14 +42,14 @@ export default function App() {
 
   //PRUEBA CON useEffect para Supabase
 
-  useEffect(() => {
-    const testConexion = async () => {
-      const { data, error } = await supabase.from('gastos').select('*').limit(1);
-      if (error) console.log("Error Supabase:", error.message);
-      else console.log("✅ ¡Conexión exitosa!");
-    };
-    testConexion();
-  }, []);
+  // useEffect(() => {
+  //   const testConexion = async () => {
+  //     const { data, error } = await supabase.from('gastos').select('*').limit(1);
+  //     if (error) console.log("Error Supabase:", error.message);
+  //     else console.log("✅ ¡Conexión exitosa!");
+  //   };
+  //   testConexion();
+  // }, []);
 
   const enviarGasto = async () => {
   if (!concepto || !monto) {
@@ -76,7 +76,7 @@ export default function App() {
     // 2. Mandamos a Supabase (lo nuevo)
     await enviarASupabase(datos);
 
-    Alert.alert("¡Éxito!", "Gasto cargado en Excel y Supabase.");
+    Alert.alert("¡Éxito!", "Gasto cargado en Sheets y Supabase.");
     
     // Limpieza de campos...
     setConcepto("");
@@ -105,7 +105,7 @@ export default function App() {
       ]);
 
     if (error) throw error;
-    console.log("✅ ¡Guardado en Supabase!");
+    //console.log("✅ ¡Guardado en Supabase!");ver!
   } catch (error) {
     console.error("❌ Error Supabase:", error.message);
   }
