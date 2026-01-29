@@ -1,248 +1,179 @@
-import axios from "axios";
-// import { useState } from "react";
-import { useState } from "react";
+import { useState } from "react"; // Quitamos useEffect por ahora para simplificar
 import {
   Alert,
   ScrollView,
-  //StyleSheet,
   Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { supabase } from './lib/supabase';
-
 import { styles } from "./styles/styles.js";
 
-// URL DE GOOGLE APPS SCRIPT
-//(modificado) Leemos la URL desde el archivo .env
-const SCRIPT_URL = process.env.EXPO_PUBLIC_SCRIPT_URL;
-
-const CATEGORIAS_MADRE = [
-  "Vida",
-  "Impuestos/Servicios",
-  "Transporte",
-  "Entretenimiento",
-  "Vicios",
-  "Varios/Extras",
+const CONCEPTOS_FAVORITOS = [
+  {
+    id: "1",
+    icono: "🛒",
+    nombre: "Súper",
+    concepto: "Supermercado",
+    categoria: "Vida",
+  },
+  {
+    id: "2",
+    icono: "🏠",
+    nombre: "Casa",
+    concepto: "Gastos Casa",
+    categoria: "Impuestos/Servicios",
+  },
+  {
+    id: "3",
+    icono: "🚕",
+    nombre: "Taxi",
+    concepto: "Taxi/Coche",
+    categoria: "Transporte",
+  },
+  {
+    id: "4",
+    icono: "🍕",
+    nombre: "Salidas",
+    concepto: "Salida/Cena",
+    categoria: "Entretenimiento",
+  },
+  {
+    id: "5",
+    icono: "🐱",
+    nombre: "Gatas",
+    concepto: "Gatas",
+    categoria: "Vida",
+  },
+  {
+    id: "6",
+    icono: "🍺",
+    nombre: "Escabio",
+    concepto: "Escabio",
+    categoria: "Vicios",
+  },
+  {
+    id: "7",
+    icono: "🍾",
+    nombre: "Almacén",
+    concepto: "Almacen",
+    categoria: "Vida",
+  },
+  {
+    id: "8",
+    icono: "🛵",
+    nombre: "Delivery",
+    concepto: "Delivery",
+    categoria: "Extras",
+  },
+  {
+    id: "9",
+    icono: "➕",
+    nombre: "Otro",
+    concepto: "",
+    categoria: "Varios/Extras",
+  },
 ];
 
-//console.log("DEBUG - URL cargada:", process.env.EXPO_PUBLIC_SCRIPT_URL);
+const SCRIPT_URL = process.env.EXPO_PUBLIC_SCRIPT_URL;
 
 export default function App() {
   const [concepto, setConcepto] = useState("");
   const [monto, setMonto] = useState("");
-  const [pagador, setPagador] = useState("Carlos"); // Podés cambiar el nombre inicial
+  const [pagador, setPagador] = useState("Carlos");
   const [cuotas, setCuotas] = useState("1");
   const [proximoMes, setProximoMes] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [categoria, setCategoria] = useState("Vida");
-  const [dividir, setDividir] = useState(true); // Por defecto se divide
-
-  //PRUEBA CON useEffect para Supabase
-
-  // useEffect(() => {
-  //   const testConexion = async () => {
-  //     const { data, error } = await supabase.from('gastos').select('*').limit(1);
-  //     if (error) console.log("Error Supabase:", error.message);
-  //     else console.log("✅ ¡Conexión exitosa!");
-  //   };
-  //   testConexion();
-  // }, []);
+  const [dividir, setDividir] = useState(true);
+  const [mostrarSaldo, setMostrarSaldo] = useState(false);
+  const [modalNuevoVisible, setModalNuevoVisible] = useState(false);
 
   const enviarGasto = async () => {
-  if (!concepto || !monto) {
-    Alert.alert("Error", "Por favor completa concepto y monto.");
-    return;
-  }
-
-  const datos = {
-    categoria: categoria,
-    concepto: concepto,
-    monto: parseFloat(monto),
-    cuotas: parseInt(cuotas),
-    pagador: pagador,
-    pagaProximoMes: proximoMes,
-    compartido: dividir,
+    if (!concepto || !monto) {
+      Alert.alert("Error", "Por favor completa concepto y monto.");
+      return;
+    }
+    setCargando(true);
+    try {
+      // Simulación de envío para probar que arranca
+      console.log("Enviando...");
+      setTimeout(() => {
+        Alert.alert("¡Éxito!", "App funcionando.");
+        setCargando(false);
+      }, 1000);
+    } catch (error) {
+      Alert.alert("Error");
+      setCargando(false);
+    }
   };
-
-  setCargando(true);
-
-  try {
-    // 1. Mandamos al Google Sheets (como siempre)
-    await axios.post(SCRIPT_URL, JSON.stringify(datos));
-    
-    // 2. Mandamos a Supabase (lo nuevo)
-    await enviarASupabase(datos);
-
-    Alert.alert("¡Éxito!", "Gasto cargado en Sheets y Supabase.");
-    
-    // Limpieza de campos...
-    setConcepto("");
-    setMonto("");
-  } catch (error) {
-    Alert.alert("Error", "Hubo un problema al guardar.");
-  } finally {
-    setCargando(false);
-  }
-};
-
-  const enviarASupabase = async (datos) => {
-  try {
-    const { error } = await supabase
-      .from('gastos')
-      .insert([
-        {
-          categoria: datos.categoria,
-          concepto: datos.concepto,
-          monto: datos.monto,
-          pagador: datos.pagador,
-          cuotas: datos.cuotas,
-          es_compartido: datos.compartido,
-          // mes_pago lo manejaremos más adelante con lógica de fechas
-        }
-      ]);
-
-    if (error) throw error;
-    //console.log("✅ ¡Guardado en Supabase!");ver!
-  } catch (error) {
-    console.error("❌ Error Supabase:", error.message);
-  }
-};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titulo}>Nuevo Gasto</Text>
+      <TouchableOpacity
+        style={styles.subheader}
+        onPress={() => setMostrarSaldo(!mostrarSaldo)}
+      >
+        <Text style={styles.textoSaldo}>
+          {mostrarSaldo ? "💰 Saldo: $45.200" : "👁️ Ver Saldo"}
+        </Text>
+      </TouchableOpacity>
 
-      {/* botones de categorias */}
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: "bold",
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
+        ¿En qué gastamos?
+      </Text>
 
-      <Text style={styles.label}>Categoría General</Text>
       <View style={styles.gridCategorias}>
-        {CATEGORIAS_MADRE.map((cat) => (
+        {CONCEPTOS_FAVORITOS.map((item) => (
           <TouchableOpacity
-            key={cat}
+            key={item.id}
             style={[
               styles.botonCuadricula,
-              categoria === cat && styles.botonCuadriculaActivo,
+              concepto === item.concepto && styles.botonCuadriculaActivo,
             ]}
             onPress={() => {
-              setCategoria(cat);
-              setConcepto(""); //limpia el concepto si cambia la categoria
+              if (item.id === "9") {
+                setModalNuevoVisible(true); // El botón "+" abrirá el modal luego
+              } else {
+                setConcepto(item.concepto);
+                setCategoria(item.categoria);
+              }
             }}
           >
+            <Text style={{ fontSize: 22 }}>{item.icono}</Text>
             <Text
               style={[
                 styles.textoCuadricula,
-                categoria === cat && styles.textoCuadriculaActivo,
+                concepto === item.concepto && styles.textoCuadriculaActivo,
               ]}
             >
-              {cat}
+              {item.nombre}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* botones conceptos */}
-
-      <View style={styles.contenedorChips}>
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Supermercado" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Supermercado");
-            setCategoria("Vida");
-          }}
-        >
-          <Text style={styles.chipText}>🛒 Súper</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Gatas" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Gatas");
-            setCategoria("Vida");
-          }}
-        >
-          <Text style={styles.chipText}>🐱 Gatas</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Salidas" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Salidas");
-            setCategoria("Entretenimiento");
-          }}
-        >
-          <Text style={styles.chipText}>🍕 Salidas</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Escabio" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Escabio");
-            setCategoria("Vicios");
-          }}
-        >
-          <Text style={styles.chipText}>🍷 Escabio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Bibi" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Bibi");
-            setCategoria("Transporte");
-          }}
-        >
-          <Text style={styles.chipText}>🚗 Bibi</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.chip,
-            concepto === "Delivery" && styles.chipActivo, // Si está seleccionado, aplica este estilo extra
-          ]}
-          onPress={() => {
-            setConcepto("Delivery");
-            setCategoria("Varios/Extras");
-          }}
-        >
-          <Text style={styles.chipText}>🍔 Deliv</Text>
-        </TouchableOpacity>
+      <View style={styles.contenedorMonto}>
+        <Text style={styles.moneda}>$</Text>
+        <TextInput
+          style={styles.inputMontoGigante}
+          value={monto}
+          onChangeText={setMonto}
+          keyboardType="numeric"
+          placeholder="0"
+          placeholderTextColor="#ccc"
+        />
       </View>
 
-      <Text style={styles.label}>Concepto</Text>
-      <TextInput
-        style={styles.input}
-        value={concepto}
-        onChangeText={setConcepto}
-        placeholder="Ej: Supermercado"
-      />
-
-      <Text style={styles.label}>Monto Total</Text>
-      <TextInput
-        style={styles.input}
-        value={monto}
-        onChangeText={setMonto}
-        keyboardType="numeric"
-        placeholder="$ 0.00"
-      />
-
-      <Text style={styles.label}>¿Quién pagó?</Text>
+      {/* Selector de Pagador */}
       <View style={styles.row}>
         <TouchableOpacity
           style={[
@@ -251,10 +182,15 @@ export default function App() {
           ]}
           onPress={() => setPagador("Carlos")}
         >
-          <Text style={pagador === "Carlos" ? styles.textoActivo : null}>
+          <Text
+            style={
+              pagador === "Carlos" ? styles.textoActivo : styles.textoPersona
+            }
+          >
             Carlos
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.botonPersona,
@@ -262,42 +198,49 @@ export default function App() {
           ]}
           onPress={() => setPagador("Milagros")}
         >
-          <Text style={pagador === "Milagros" ? styles.textoActivo : null}>
+          <Text
+            style={
+              pagador === "Milagros" ? styles.textoActivo : styles.textoPersona
+            }
+          >
             Milagros
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.label}>Cuotas</Text>
-      <TextInput
-        style={styles.input}
-        value={cuotas}
-        onChangeText={setCuotas}
-        keyboardType="numeric"
-      />
+      {/* Switches en una sola línea para ahorrar espacio */}
+      <View style={styles.rowOpciones}>
+        <View style={styles.opcionSwitch}>
+          <Text style={styles.labelGrande}>¿Se divide? 👫</Text>
+          <Switch
+            value={dividir}
+            onValueChange={setDividir}
+            // Violeta cuando está activo, gris cuando no
+            trackColor={{ false: "#edf2f7", true: "#7b61ff" }}
+            thumbColor={"#fff"}
+            ios_backgroundColor="#edf2f7"
+            style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
+          />
+        </View>
 
-      <View style={styles.rowSpace}>
-        <Text style={styles.label}>¿Paga el próximo mes?</Text>
-        <Switch value={proximoMes} onValueChange={setProximoMes} />
-      </View>
-
-      <View style={styles.contenedorDividir}>
-        <Text style={styles.textoDividir}>¿Dividir gasto con mi pareja?</Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={dividir ? "#007AFF" : "#f4f3f4"}
-          onValueChange={() => setDividir((previousState) => !previousState)}
-          value={dividir}
-        />
+        <TouchableOpacity
+          style={styles.botonTarjetaMejorado}
+          onPress={() => setModalTarjetaVisible(true)}
+        >
+          <Text style={styles.textoTarjetaMejorado}>💳 ¿Cuotas/Tarjetas?</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
-        style={[styles.botonEnviar, cargando && { backgroundColor: "#ccc" }]}
+        style={[
+          styles.botonEnviar,
+          cargando && { backgroundColor: "#ccc" }, // Si está cargando se pone gris
+        ]}
         onPress={enviarGasto}
         disabled={cargando}
       >
         <Text style={styles.textoBoton}>
-          {cargando ? "Enviando..." : "GUARDAR GASTO"}
+          {cargando ? "ENVIANDO..." : "GUARDAR GASTO"}
         </Text>
       </TouchableOpacity>
     </ScrollView>
